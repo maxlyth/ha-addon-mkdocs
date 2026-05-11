@@ -1,22 +1,31 @@
 #!/usr/bin/with-contenv bashio
 # shellcheck shell=bash
 # ==============================================================================
-# Home Assistant Community Add-on: MkDocs
-# Runs the MkDocs
+# Home Assistant Add-on: MkDocs
+# Vault watcher (library-managed PollingObserver) handles initial build + ongoing
+# rebuilds. nginx serves the static output. inotify does not propagate through
+# the addon container's bind-mount boundaries, which is why a polling fallback
+# is used here — same approach used by mkdocs/hugo/vite when native FS events
+# are unavailable.
 # ==============================================================================
-echo "Starting MkDocs Server"
+echo "Starting MkDocs (vault-watcher + nginx)"
 
-# Start mkdocs server
-. /opt/venv/bin/activate 
-mkdocs serve -a 0.0.0.0:8000 -f /config/mkdocs.yml &
+. /opt/venv/bin/activate
 
-# Wait for mkdocs temporary directory is created
-sleep 1
+# Watcher does initial sync + build, then polls for vault changes.
+PYTHONUNBUFFERED=1 python3 /usr/local/bin/vault-watcher.py 2>&1 | sed 's/^/[watcher] /' &
 
-# Start nginx to serve page
-rm /data/www -fr
-mkdir -p /data/
-ln -s /tmp/mkdocs_* /data/www
+# Wait for the initial build artifact before nginx starts.
+for i in $(seq 1 30); do
+    [ -d /tmp/mkdocs_built ] && break
+    sleep 1
+done
+
+# nginx serves the built static site.
+rm -rf /data/www
+mkdir -p /data
+ln -s /tmp/mkdocs_built /data/www
 chmod 777 /data/www
-chmod 777 /tmp/mkdocs_*
+chmod 777 /tmp/mkdocs_built
+
 nginx -g "daemon off; error_log /dev/stdout debug;"

@@ -1,7 +1,6 @@
 site_name: Home Assistant documentation
+docs_dir: /homeassistant/documentation
 use_directory_urls: False
-repo_url: http://homeassistant.local:8000
-repo_name: View updates in realtime
 theme:
   name: material
   logo: assets/mkdocs_icon.png
@@ -10,12 +9,25 @@ theme:
   include_search_page: false
   search_index_only: true
   palette:
-    primary: light blue
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: light blue
+      accent: light blue
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: light blue
+      accent: light blue
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
 extra_css:
   - assets/stylesheet.css
-nav:
-  - Home: index.md
-  - Help/FAQ: addons/mkdocs/help.md
+extra_javascript:
+  - assets/search-shortcut.js
+  - assets/page-memory.js
 markdown_extensions:
   - admonition
   - pymdownx.details
@@ -31,5 +43,10 @@ markdown_extensions:
       permalink: "#"
   - plantuml_markdown:
       server: "http://www.plantuml.com/plantuml"
+hooks:
+  - /etc/mkdocs-addon-static/hooks.py
 plugins:
   - search
+  - git-revision-date-localized:
+      type: timeago
+      fallback_to_build_date: true

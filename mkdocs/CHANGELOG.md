@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.1.7 - 05-11-2026
+
+- ➕ Mount Home Assistant config read-only via `homeassistant_config:ro`; defaults `docs_dir` to `/homeassistant/documentation` so an external Markdown vault can be served with no copy step.
+- ➕ Vault watcher sidecar (`vault-watcher.py`): library-managed `PollingObserver` (60s) rebuilds the static site on any change in the mounted vault. inotify does not propagate through addon bind-mounts, so polling is the standard fallback (same pattern mkdocs/hugo/vite use when native FS events are unavailable).
+- ➕ Light + dark palette with toggle (Material `prefers-color-scheme` pair); slate foreground variables nudged up to match Home Assistant's text contrast.
+- ➕ Cmd/Ctrl+F shortcut handler opens Material's search overlay instead of the browser find-in-page (`search-shortcut.js`).
+- ➕ Last-page memory: persists the last viewed path to `localStorage` on hide/unload/nav events and restores it when the iframe re-mounts at root (`page-memory.js`).
+- ➕ Per-file "last updated" dates via **mkdocs-git-revision-date-localized-plugin** `1.4.7`.
+- ➕ Static-asset bundle injected via mkdocs `hooks.py` (CSS, JS, icon, logo) so no `extra_files:` copy step is needed.
+- 🔁 Image namespace moved to `ghcr.io/maxlyth/{arch}-addon-mkdocs`.
+- 🗑️ Dropped the seeded `addons/mkdocs/help.md` sample tree; the addon no longer ships demo content.
+
 ## 1.1.6 - 03-15-2025
 
 - ⬆️ Bump **actions/checkout** `4.1.7` ➜ `4.2.1`

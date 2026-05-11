@@ -6,6 +6,7 @@ RUN apk add --no-cache \
         python3 \
         py3-pip \
         nginx \
+        git \
     && \
     mkdir -p /run/nginx
     

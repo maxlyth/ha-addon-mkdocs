@@ -18,6 +18,7 @@ Behaviour:
     drift gets fixed on the next cycle.
 """
 import logging
+import os
 import shutil
 import subprocess
 import sys
@@ -32,7 +33,10 @@ except ImportError:
     sys.exit(1)
 
 
-VAULT = Path("/homeassistant/documentation")
+# VAULT_PATH is exported by the s6 run script from the addon's vault_path
+# option. Fallback default matches the shipped schema default so manual
+# python invocations still work.
+VAULT = Path(os.environ.get("VAULT_PATH", "/homeassistant/documentation"))
 DOCS = Path("/config/docs")
 SITE = Path("/tmp/mkdocs_built")
 MKDOCS_YML = "/config/mkdocs.yml"

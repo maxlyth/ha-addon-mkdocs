@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.1.8 - 05-11-2026
+
+- ➕ Add `vault_path` option (default `/homeassistant/documentation`) so a single addon image can serve any directory under the host's HA config. The s6 run script reads `bashio::config 'vault_path'` on every start, patches `docs_dir` in `/config/mkdocs.yml`, and exports `VAULT_PATH` for the watcher. Enables N installs of the same image with different sidebar entries, each scoped to a different sub-vault.
+
 ## 1.1.7 - 05-11-2026
 
 - ➕ Mount Home Assistant config read-only via `homeassistant_config:ro`; defaults `docs_dir` to `/homeassistant/documentation` so an external Markdown vault can be served with no copy step.

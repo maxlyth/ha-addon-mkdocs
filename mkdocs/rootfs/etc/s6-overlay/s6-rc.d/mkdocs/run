@@ -12,6 +12,24 @@ echo "Starting MkDocs (vault-watcher + nginx)"
 
 . /opt/venv/bin/activate
 
+# Resolve vault_path option (addon schema default = /homeassistant/documentation).
+# Authoritative on every start: option drives docs_dir in /config/mkdocs.yml so
+# users can repoint the vault from the addon options UI without editing files.
+VAULT_PATH=$(bashio::config 'vault_path')
+if [ -z "${VAULT_PATH}" ] || [ "${VAULT_PATH}" = "null" ]; then
+    VAULT_PATH="/homeassistant/documentation"
+fi
+export VAULT_PATH
+echo "Vault path: ${VAULT_PATH}"
+
+if [ -f /config/mkdocs.yml ]; then
+    if grep -q '^docs_dir:' /config/mkdocs.yml; then
+        sed -i "s|^docs_dir:.*|docs_dir: ${VAULT_PATH}|" /config/mkdocs.yml
+    else
+        sed -i "1a docs_dir: ${VAULT_PATH}" /config/mkdocs.yml
+    fi
+fi
+
 # Watcher does initial sync + build, then polls for vault changes.
 PYTHONUNBUFFERED=1 python3 /usr/local/bin/vault-watcher.py 2>&1 | sed 's/^/[watcher] /' &
 
